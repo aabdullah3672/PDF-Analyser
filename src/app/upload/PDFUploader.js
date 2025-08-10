@@ -7,6 +7,7 @@ export default function PDFUploader() {
   const [isDragging, setIsDragging] = useState(false)
   const [uploadProgress, setUploadProgress] = useState({})
   const fileInputRef = useRef(null)
+  const url = process.env.NEXT_PUBLIC_BACKEND_URL
 
   const handleDragOver = (e) => {
     e.preventDefault()
@@ -30,6 +31,23 @@ export default function PDFUploader() {
     handleFiles(selectedFiles)
   }
 
+  const uploadFile = async (file) => {
+    const formData =  new FormData
+    formData.append('file', file.file)
+    
+    try {
+      console.log(`${url}/upload/pdf`)
+      const response = await fetch(`${url}/upload/pdf`, {
+        method:'POST', 
+        body: formData
+      })
+      const result  = await response.json();
+
+    }catch(error){
+        console.log(error)
+    }
+  }
+
   const handleFiles = (newFiles) => {
     const pdfFiles = newFiles.filter(file => file.type === 'application/pdf')
     
@@ -40,12 +58,13 @@ export default function PDFUploader() {
       size: file.size,
       status: 'pending'
     }))
-
     setFiles(prev => [...prev, ...fileObjects])
     
     fileObjects.forEach(fileObj => {
+      uploadFile(fileObj)
       simulateUpload(fileObj.id)
     })
+
   }
 
   const simulateUpload = (fileId) => {
@@ -415,3 +434,5 @@ export default function PDFUploader() {
     </div>
   )
 }
+
+
